@@ -24,6 +24,6 @@ Next start this container linked to the 2 databases. In order to seed the source
 
       docker run -it --rm                \
        -v /some/rails/app/db:/srv/app/db \
-       --link sourcedb --link targetdb i \
+       --link sourcedb --link targetdb   \
        smart-skeema rake demo
 

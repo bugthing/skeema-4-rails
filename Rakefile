@@ -37,8 +37,13 @@ task :read do
   system(cmd)
 end
 
-desc 'Use skeema to add the target environment.'
+desc 'Configure the .skeema file to add the target environment and set alter-wrapper.'
 task :config do
+
+  cfg_file = "#{CONFIG[:skeema_dir]}/.skeema"
+  cfg = IO.read(cfg_file)
+  IO.write(cfg_file, 'alter-wrapper=/usr/bin/pt-online-schema-change --execute --alter-foreign-keys-method="auto" --alter {CLAUSES} D={SCHEMA},t={TABLE},h={HOST},P={PORT},u={USER},p={PASSWORDX}' + "\n" + cfg)
+
   cmd = "skeema add-environment target -h #{CONFIG[:target][:host]} -u #{CONFIG[:target][:username]} -d #{CONFIG[:source][:database]} --dir #{CONFIG[:skeema_dir]}"
   cmd += "-p#{CONFIG[:target][:password]}" if CONFIG[:target][:password].length > 0
   system(cmd)
@@ -46,12 +51,12 @@ end
 
 desc 'Use skeema to display the differences between the source and and the target.'
 task :diff do
-  system("skeema diff target")
+  system("skeema diff --allow-unsafe target")
 end
 
 desc 'Use skeema to apply the changes required to make the target the same as the source.'
 task :apply do
-  system("skeema push target")
+  system("skeema push --allow-unsafe target")
 end
 
 desc 'Remove the skeema dir.'
